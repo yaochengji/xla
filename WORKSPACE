@@ -52,21 +52,21 @@ new_local_repository(
 
 xla_hash = '30422ba2564eb108e12fb8a01629b2d0cf1f4393'
 
-http_archive(
-    name = "xla",
-    patch_args = [
-        "-l",
-        "-p1",
-    ],
-    patch_tool = "patch",
-    patches = [
-        "//openxla_patches:gpu_race_condition.diff",
-    ],
-    strip_prefix = "xla-" + xla_hash,
-    urls = [
-        "https://github.com/openxla/xla/archive/" + xla_hash + ".tar.gz",
-    ],
-)
+# http_archive(
+#     name = "xla",
+#     patch_args = [
+#         "-l",
+#         "-p1",
+#     ],
+#     patch_tool = "patch",
+#     patches = [
+#         "//openxla_patches:gpu_race_condition.diff",
+#     ],
+#     strip_prefix = "xla-" + xla_hash,
+#     urls = [
+#         "https://github.com/openxla/xla/archive/" + xla_hash + ".tar.gz",
+#     ],
+# )
 
 
 
@@ -78,10 +78,10 @@ http_archive(
 #    bazel --override_repository=xla=/path/to/openxla
 #    or
 # b) by commenting out the http_archive above and uncommenting the following:
-# local_repository(
-#    name = "xla",
-#    path = "/path/to/openxla",
-# )
+local_repository(
+   name = "xla",
+   path = "/data00/chengji.yao/docker/openxla",
+)
 
 # Initialize hermetic Python
 load("@xla//third_party/py:python_init_rules.bzl", "python_init_rules")
@@ -136,7 +136,49 @@ load("@xla//:workspace0.bzl", "xla_workspace0")
 
 xla_workspace0()
 
-load("@tsl//third_party/gpus:cuda_configure.bzl", "cuda_configure")
+load(
+    "@tsl//third_party/gpus/cuda/hermetic:cuda_json_init_repository.bzl",
+    "cuda_json_init_repository",
+)
+
+cuda_json_init_repository()
+
+load(
+    "@cuda_redist_json//:distributions.bzl",
+    "CUDA_REDISTRIBUTIONS",
+    "CUDNN_REDISTRIBUTIONS",
+)
+load(
+    "@tsl//third_party/gpus/cuda/hermetic:cuda_redist_init_repositories.bzl",
+    "cuda_redist_init_repositories",
+    "cudnn_redist_init_repository",
+)
+
+cuda_redist_init_repositories(
+    cuda_redistributions = CUDA_REDISTRIBUTIONS,
+)
+
+cudnn_redist_init_repository(
+    cudnn_redistributions = CUDNN_REDISTRIBUTIONS,
+)
+
+load(
+    "@tsl//third_party/gpus/cuda/hermetic:cuda_configure.bzl",
+    "cuda_configure",
+)
+
 cuda_configure(name = "local_config_cuda")
-load("@tsl//third_party/nccl:nccl_configure.bzl", "nccl_configure")
+
+load(
+    "@tsl//third_party/nccl/hermetic:nccl_redist_init_repository.bzl",
+    "nccl_redist_init_repository",
+)
+
+nccl_redist_init_repository()
+
+load(
+    "@tsl//third_party/nccl/hermetic:nccl_configure.bzl",
+    "nccl_configure",
+)
+
 nccl_configure(name = "local_config_nccl")
