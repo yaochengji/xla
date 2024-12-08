@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#include "torch/csrc/lazy/core/dynamic_ir.h"
+#include <torch/csrc/lazy/core/dynamic_ir.h>
 #include "torch_xla/csrc/ir.h"
 #include "torch_xla/csrc/ops/scalar.h"
 #include "torch_xla/csrc/runtime/debug_macros.h"

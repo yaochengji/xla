@@ -37,7 +37,7 @@ cc_library(
         "computation_client.h",
     ],
     copts = [
-        "-isystemexternal/torch",
+        "-isystem external/torch/torch/include",
     ],
     deps = [
         ":debug_macros",

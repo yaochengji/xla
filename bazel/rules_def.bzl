@@ -10,7 +10,7 @@ def ptxla_cc_library(
         copts = [],
         **kwargs):
     native.cc_library(
-        copts = copts + ["-isystemexternal/torch"],  # Required for system includes.
+        copts = copts + ["-isystem external/torch/torch/include"],  # Required for system includes.
         deps = deps + [
             "@torch//:headers",
             "@torch//:runtime_headers",
@@ -25,7 +25,7 @@ def ptxla_cc_test(
     xla_cc_test(
         linkstatic = True,
         copts = copts + [
-            "-isystemexternal/torch",  # Required for system includes.
+            "-isystem external/torch/torch/include",  # Required for system includes.
             "-fexceptions",  # Required for testing crashes.
         ],
         deps = deps + [

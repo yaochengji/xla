@@ -10,14 +10,16 @@ cc_library(
         ["torch/include/**/*.h"],
         ["torch/include/google/protobuf/**/*.h"],
     ),
-    strip_include_prefix = "torch/include",
+    includes = ["torch/include"],
+    # strip_include_prefix = "torch/include",
 )
 
 # Runtime headers, for importing <torch/torch.h>.
 cc_library(
     name = "runtime_headers",
     hdrs = glob(["torch/include/torch/csrc/api/include/**/*.h"]),
-    strip_include_prefix = "torch/include/torch/csrc/api/include",
+    includes = ["torch/include/torch/csrc/api/include"],
+    # strip_include_prefix = "torch/include/torch/csrc/api/include",
 )
 
 filegroup(

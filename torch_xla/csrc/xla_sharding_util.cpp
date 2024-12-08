@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "absl/synchronization/blocking_counter.h"
-#include "torch/csrc/lazy/core/ir_util.h"
+#include <torch/csrc/lazy/core/ir_util.h>
 #include "torch_xla/csrc/aten_autograd_ops.h"
 #include "torch_xla/csrc/aten_xla_bridge.h"
 #include "torch_xla/csrc/device.h"

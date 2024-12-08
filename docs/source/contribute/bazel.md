@@ -64,7 +64,7 @@ PyTorch headers are directly sourced from the `torch` dependency, the
 local checkout of PyTorch. The shared libraries (e.g. `libtorch.so`) are
 sourced from the same local checkout where the code has been built and
 `build/lib/` contains the built objects. For this to work, it's required
-to pass `-isystemexternal/torch` to the compiler so it can find `system`
+to pass `-isystemexternal/torch/torch/include` to the compiler so it can find `system`
 libraries and satisfy them from the local checkout. Some are included as
 `<system>` and some as `"user"` headers.
 
