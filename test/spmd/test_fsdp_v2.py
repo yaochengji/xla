@@ -80,6 +80,45 @@ class FSDPv2Test(test_xla_sharding_base.XlaShardingTest):
     output = model(x)
     self.assertTrue(torch.allclose(output_expected.cpu(), output.cpu()))
 
+  def test_fsdp_v2_weight_update_correctness(self):
+    torch.manual_seed(2024)
+    model_expected = self.SimpleLinear().to(xm.xla_device())
+    model = copy.deepcopy(model_expected)
+    mesh = self._get_mesh((self.n_devices, 1), None, ('fsdp', 'tensor'))
+    model.fc1 = FSDPv2(model.fc1, mesh=mesh)
+    model.fc2 = FSDPv2(model.fc2, mesh=mesh)
+    model = FSDPv2(model, mesh=mesh)
+
+    num_steps = 4
+    inputs_expected = [
+        torch.randn(16, 128).to(xm.xla_device()) for _ in range(num_steps)
+    ]
+    inputs = [copy.deepcopy(inp) for inp in inputs_expected]
+
+    learning_rate = 1e-1
+    optimizer_expected = torch.optim.SGD(
+        model_expected.parameters(), lr=learning_rate)
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+    for inp in enumerate(inputs):
+      xs.mark_sharding(inp, mesh, ('fsdp', None))
+      optimizer.zero_grad()
+      loss = model(inp).sum()
+      loss.backward()
+      optimizer.step()
+      xm.mark_step()
+
+    for inp in enumerate(inputs_expected):
+      optimizer_expected.zero_grad()
+      loss_expected = model_expected(inp).sum()
+      loss_expected.backward()
+      optimizer_expected.step()
+      xm.mark_step()
+
+    for param, param_expected in zip(model.parameters(),
+                                     model_expected.parameters()):
+      assert torch.allclose(param.cpu(), param_expected.cpu(), atol=1e-2)
+
   def test_fsdp_v2_auto_wrap_basic(self):
     model = self.SimpleLinear().to(xm.xla_device())
     mesh = self._get_mesh((self.n_devices, 1), None, ('fsdp', 'tensor'))
