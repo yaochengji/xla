@@ -99,8 +99,9 @@ class FSDPv2Test(test_xla_sharding_base.XlaShardingTest):
     optimizer_expected = torch.optim.SGD(
         model_expected.parameters(), lr=learning_rate)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+    xm.mark_step()
 
-    for inp in enumerate(inputs):
+    for inp in inputs:
       xs.mark_sharding(inp, mesh, ('fsdp', None))
       optimizer.zero_grad()
       loss = model(inp).sum()
@@ -108,7 +109,7 @@ class FSDPv2Test(test_xla_sharding_base.XlaShardingTest):
       optimizer.step()
       xm.mark_step()
 
-    for inp in enumerate(inputs_expected):
+    for inp in inputs_expected:
       optimizer_expected.zero_grad()
       loss_expected = model_expected(inp).sum()
       loss_expected.backward()
