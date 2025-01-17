@@ -69,8 +69,8 @@ class TestTorchNaiveFSDP(parameterized.TestCase):
     global_batch_size = local_batch_size * world_size
     offset = rank * local_batch_size
     rng = torch.Generator().manual_seed(2022)
-    inputs = torch.randn(global_batch_size, 10, generator=rng)
-    labels = torch.randn(global_batch_size, 10, generator=rng)
+    inputs = torch.randn(global_batch_size, 64, generator=rng, device=device)
+    labels = torch.randn(global_batch_size, 64, generator=rng, device=device)
     loss = train_step(model, inputs, labels, optimizer, loss_fn)
     print(loss)
 
